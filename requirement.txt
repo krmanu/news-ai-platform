@@ -3,9 +3,9 @@ langchain
 langchain-community
 langchain-groq
 python-dotenv
-mcp-use
 newsapi-python
 pymongo
 apscheduler
 textblob
 requests
+tavily-python

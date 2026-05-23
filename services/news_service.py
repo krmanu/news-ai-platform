@@ -10,27 +10,11 @@ SEARCH_URL = "https://api.currentsapi.services/v1/search"
 
 # UI Name -> API Category
 
-CATEGORY_MAP = {
-    "Sports":     "sports",        # fix: was "sport"
-    "Business":   "business",      # fix: was "economy_business_finance"
-    "Technology": "technology",    # fix: was "science_technology"
-    "Cinema":     "entertainment", # fix: was "arts_culture_entertainment"
-    "Politics":   "politics",      # fix: was "politics_government"
-}
+CATEGORY_MAP = {"Sports":"sports","Business":"business","Technology": "technology","Cinema":"entertainment","Politics":"politics"}
 
 # UI Name -> Country Code
-COUNTRY_MAP = {
-    "India":     "India",
-    "America":   "USA America",
-    "China":     "China",
-    "Australia": "Australia",
-    "UK":        "UK Britain",
-    "Germany":   "Germany",
-    "France":    "France",
-    "Japan":     "Japan",
-    "Brazil":    "Brazil",
-    "Canada":    "Canada",
-}
+COUNTRY_MAP = {"India":"India","America":"USA","China":"China","Australia": "Australia","UK":"United Kingdom",
+                "Germany":"Germany","France":"France","Japan":"Japan","Brazil":"Brazil","Canada":"Canada"}
 
 # Fetch Single Category News
 def fetch_single(ui_category, cat_keyword, country_name, country_keyword):
@@ -38,9 +22,10 @@ def fetch_single(ui_category, cat_keyword, country_name, country_keyword):
     results = []
     try:
         headers = {"Authorization": CURRENTS_API_KEY}
+        
         # API request parameters
         params = {
-            "keywords":  f"{cat_keyword} {country_keyword}",  # fix: keyword search
+            "keywords":  f"{cat_keyword} {country_keyword}", 
             "language":  "en",
             "page_size": 10,
         }
@@ -87,7 +72,7 @@ def fetch_single(ui_category, cat_keyword, country_name, country_keyword):
 
 def fetch_all_news(country_name="India"):
     
-    country_code = COUNTRY_MAP.get(country_name, "India")
+    country_keyword  = COUNTRY_MAP.get(country_name, "India")
     total = 0
 
     with ThreadPoolExecutor(max_workers=5) as executor:
@@ -95,7 +80,8 @@ def fetch_all_news(country_name="India"):
             executor.submit(
                 fetch_single,
                 ui_cat, api_cat,
-                country_code, country_name
+                country_name,
+                country_keyword
             ): ui_cat
             for ui_cat, api_cat in CATEGORY_MAP.items()
         }

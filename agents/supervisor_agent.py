@@ -1,6 +1,7 @@
 from agents.analytics_agent import top_news_by_category
 from agents.summarizer_agent import summarize_news
 from agents.web_search_agent import verify_news_web
+import asyncio
 
 from utils.database import news_collection
 
@@ -44,12 +45,21 @@ async def run_workflow(category, country):
 
     # MCP verification (sequential to avoid rate limits)
     for item in summarized:
-        try:
-            web_context = await verify_news_web(item["title"])
-            item["web_verified"] = bool(web_context)
-            item["web_context"] = web_context[:300] if web_context else ""
-        except Exception:
-            item["web_verified"] = False
-            item["web_context"] = ""
+        item["web_verified"] = False
+        item["web_context"] = ""
+
+    # Verify only top 3
+    tasks = [verify_news_web(item["title"])for item in summarized]
+
+    results = await asyncio.gather(*tasks,return_exceptions=True)
+
+    for item, web_context in zip(summarized, results):
+
+        if isinstance(web_context, Exception):
+            continue
+
+        item["web_verified"] = bool(web_context)
+
+        item["web_context"] = (web_context[:300] if web_context else "")
 
     return summarized

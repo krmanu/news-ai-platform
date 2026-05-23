@@ -1,31 +1,24 @@
-from mcp_use import MCPClient, MCPAgent
-from langchain_groq import ChatGroq
-
+from tavily import TavilyClient
 import os
-from dotenv import load_dotenv
 
-load_dotenv()
+client = TavilyClient(api_key=os.getenv("TAVILY_API_KEY"))
 
-# Load MCP Client
-def load_mcp_client():
-    client = MCPClient.from_config_file("browser_mcp.json")
-    return client
+async def verify_news_web(title: str):
 
-# Verify News Using Web Search
-async def verify_news_web(title: str) -> str:
     try:
-        # Load MCP tools
-        client = load_mcp_client()
-        
-        # Load Groq LLM
-        llm = ChatGroq(model="openai/gpt-oss-120b",api_key=os.getenv("GROQ_API_KEY"))
+        response = client.search(
+            query=title,
+            search_depth="basic",
+            max_results=3
+        )
 
-        # Create MCP Agent
-        agent = MCPAgent(llm=llm, client=client, max_steps=3)
+        results = response.get("results", [])
 
-        result = await agent.run(f"Search: {title}. Return 1 sentence about this news.")
+        if not results:
+            return ""
 
-        return result
+        return results[0]["content"]
+
     except Exception as e:
-        print(f"MCP error: {e}")
+        print("Search error:", e)
         return ""

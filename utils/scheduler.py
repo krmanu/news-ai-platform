@@ -4,7 +4,7 @@ from services.news_service import fetch_all_news, COUNTRY_MAP
 scheduler = BackgroundScheduler()
 
 def fetch_all_countries():
-    """Background job — fetch news for all 10 countries"""
+    
     for country_name in COUNTRY_MAP.keys():
         try:
             fetch_all_news(country_name)
@@ -17,3 +17,4 @@ def start_scheduler():
         scheduler.add_job(fetch_all_countries,'interval',minutes=30,id='news_fetch_job')
         scheduler.start()
         print("Scheduler started")
+        

@@ -24,15 +24,27 @@ st.caption("Powered by Agentic AI · MCP · Groq · MongoDB")
 
 with st.sidebar:
     st.header("📌 About")
-    st.markdown("Country-wise real-time news with AI summaries and MCP web verification.")
+    st.markdown("Real-time news platform with AI-powered summaries and live web verification.")
     st.divider()
-    st.markdown("**Stack**")
-    st.markdown("- LangChain + Groq LLM")
-    st.markdown("- MCP DuckDuckGo Search")
-    st.markdown("- MongoDB Atlas")
-    st.markdown("- Parallel fetching (5x faster)")
-    st.markdown("- APScheduler (30 min refresh)")
+    st.markdown("### ⚙️ Tech Stack")
+    st.markdown("""
+    - Groq LLM + LangChain
+    - Tavily Web Search API
+    - MongoDB Atlas
+    - Parallel AI Summarization
+    - APScheduler (Auto Refresh)
+    - Streamlit Dashboard
+    """)
     st.divider()
+    st.markdown("### 🚀 Features")
+
+    st.markdown("""
+    - Real-time news aggregation
+    - AI-generated summaries
+    - Category-wise filtering
+    - Web-verified news context
+    - Fast parallel processing
+    """)
     st.caption("Manohar K R | github.com/krmanu/news-ai-platform")
 
 # Two dropdowns side by side
