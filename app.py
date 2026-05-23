@@ -3,12 +3,14 @@ import asyncio
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
-
 from agents.supervisor_agent import run_workflow
 from utils.scheduler import start_scheduler
+from services.news_service import COUNTRY_MAP
 
-# Start background scheduler (fetches news every 30 min)
+# Load Environment Variables
+load_dotenv()
+
+# Start Background Scheduler
 start_scheduler()
 
 st.set_page_config(
@@ -20,54 +22,67 @@ st.set_page_config(
 st.title("🗞️ AI News Intelligence Platform")
 st.caption("Powered by Agentic AI · MCP · Groq · MongoDB")
 
-# Sidebar info
 with st.sidebar:
     st.header("📌 About")
-    st.markdown("Real-time news aggregation with AI summaries and MCP web verification.")
+    st.markdown("Country-wise real-time news with AI summaries and MCP web verification.")
     st.divider()
     st.markdown("**Stack**")
     st.markdown("- LangChain + Groq LLM")
     st.markdown("- MCP DuckDuckGo Search")
     st.markdown("- MongoDB Atlas")
+    st.markdown("- Parallel fetching (5x faster)")
     st.markdown("- APScheduler (30 min refresh)")
     st.divider()
-    st.caption("Your Name | github.com/yourname")  # 👈 update this
+    st.caption("Manohar K R | github.com/krmanu/news-ai-platform")
 
-# Category selector
-category = st.selectbox(
-    "📂 Select Category",
-    ["Sports", "Politics", "Cinema", "Technology", "Business"],
-    index=0
-)
+# Two dropdowns side by side
+col1, col2 = st.columns(2)
+with col1:
+    country = st.selectbox(
+        "🌍 Select Country",
+        list(COUNTRY_MAP.keys()),  # India, America, China... (no flags)
+        index=0
+    )
+with col2:
+    category = st.selectbox(
+        "📂 Select Category",
+        ["Sports", "Politics", "Cinema", "Technology", "Business"],
+        index=0
+    )
 
-# Auto-load on category change using session state
-if "last_category" not in st.session_state:
-    st.session_state.last_category = None
+# Session state to avoid re-fetching same selection
+cache_key = f"{country}_{category}"
+
+if "cache_key" not in st.session_state:
+    st.session_state.cache_key = None
+
 if "news_data" not in st.session_state:
     st.session_state.news_data = []
 
-# Load when category changes OR first visit
-if st.session_state.last_category != category:
-    st.session_state.last_category = category
-    st.session_state.news_data = []  # clear old results
+if st.session_state.cache_key != cache_key:
+    
+    st.session_state.cache_key = cache_key
+    st.session_state.news_data = []
+    
+    with st.spinner(f"Loading {category} news for {country}..."):
 
-    with st.spinner(f"Loading top {category} news..."):
         try:
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
-            news = loop.run_until_complete(run_workflow(category))
+            news = loop.run_until_complete(run_workflow(category, country))
             loop.close()
             st.session_state.news_data = news
-        except Exception as e:
-            st.error(f"❌ Error: {str(e)}")
 
-# Display news
+        except Exception as e:
+            st.error(f"Error: {str(e)}")
+
+# Display
 news = st.session_state.news_data
 
 if not news:
-    st.info("No news found. Please check back in a moment — news is being fetched automatically.")
+    st.info(f"No news found for {country} → {category}.")
 else:
-    st.success(f"Showing top {len(news)} news for **{category}**")
+    st.success(f"Top {len(news)} **{category}** news from **{country}**")
     st.divider()
 
     for i, item in enumerate(news):
@@ -75,11 +90,12 @@ else:
 
         with col1:
             st.subheader(f"{i+1}. {item['title']}")
+
         with col2:
             if item.get("web_verified"):
-                st.success("✅ Verified")
+                st.success("Verified")
             else:
-                st.warning("⚠️ Unverified")
+                st.warning("Unverified")
 
         st.write(item.get("summary") or item.get("description") or "")
 
@@ -87,14 +103,16 @@ else:
             with st.expander("🌐 MCP Web Context"):
                 st.write(item["web_context"])
 
-        col3, col4, col5 = st.columns(3)
-        with col3:
+        c1, c2, c3 = st.columns(3)
+        with c1:
             s = item.get("sentiment", "Neutral")
             emoji = "😊" if s == "Positive" else "😞" if s == "Negative" else "😐"
             st.write(f"**Sentiment:** {emoji} {s}")
-        with col4:
+
+        with c2:
             st.write(f"**Source:** {item.get('source', 'N/A')}")
-        with col5:
+
+        with c3:
             if item.get("url"):
                 st.link_button("Read More 🔗", item["url"])
 

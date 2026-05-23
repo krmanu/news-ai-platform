@@ -1,10 +1,10 @@
 from langchain_groq import ChatGroq
 import os
+from dotenv import load_dotenv
+# Load .env
+load_dotenv()
 
-llm = ChatGroq(
-    model="llama3-70b-8192",
-    api_key=os.getenv("GROQ_API_KEY")
-)
+llm = ChatGroq(model="openai/gpt-oss-120b",api_key=os.getenv("GROQ_API_KEY"))
 
 def summarize_news(text):
     prompt = f"Summarize this news in 3 lines max:\n{text}"

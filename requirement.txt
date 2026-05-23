@@ -8,3 +8,4 @@ newsapi-python
 pymongo
 apscheduler
 textblob
+requests

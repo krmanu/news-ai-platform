@@ -17,6 +17,7 @@ dependencies = [
     "pymongo>=4.17.0",
     "python-dotenv>=1.2.2",
     "rank-bm25>=0.2.2",
+    "requests>=2.34.2",
     "sentence-transformers>=5.5.1",
     "streamlit>=1.57.0",
     "textblob>=0.20.0",
