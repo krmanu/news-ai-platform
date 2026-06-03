@@ -89,3 +89,6 @@ The platform automatically refreshes news data using a background scheduler and 
 * Automated Data Refresh
 * Parallel AI Processing
 * Country & Category Analytics
+
+
+For this project, the workflow was relatively linear and deterministic. The system fetches news, performs sentiment analysis, generates summaries, verifies news through web search, and displays the results. Since the execution path is fixed and does not require complex state management, conditional routing, loops, or multi-agent coordination, LangChain was sufficient and simpler to maintain. LangGraph would be more beneficial if the workflow required dynamic decision-making or multiple interacting agents.
